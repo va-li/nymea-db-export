@@ -1,0 +1,5 @@
+# MySQL database connection configuration for nymea's measurement databases
+host: eit-rp1.ict.tuwien.ac.at
+protocol: mysql+pymysql
+user:
+password:

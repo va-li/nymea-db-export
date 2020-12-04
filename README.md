@@ -1,10 +1,10 @@
 # Nymea database export
 
-Script to export data collected by nymea in a MariaDB to CSV files.
+Export nymea's collected measurements into human-readable formats.
 
 ## Requirements
 
-- Python 3.7
+- Python 3.7+
 - pip3
 
 ## Setup & Install (Linux)
@@ -14,7 +14,7 @@ $ pwd
 /home/vbauer/nymea-mariadb-export
 ```
 
-Check you're in the repo's root directory
+Check you're in the repo's root directory.
 
 ```shell
 pip3 -m venv venv
@@ -32,34 +32,35 @@ Activate the created virtual environment.
 pip3 install -r requirements.txt
 ```
 
-Install the required libraries (they will only be installed in this particular virtual environment).
+Install the required libraries (they will only be installed in this project's virtual environment folder `venv`).
 
 ## Usage
 
+### Get measurements from the last full day
+
 ```shell
-python export.py
+python nymea_db_export.py --previous-full-day
 ```
 
-Conncects to the database specified in `mariadb_connection_config.yml` and exports data for every measurement specified in  `measurements_config.yml` into seperate CSV files inside the `data` directory.
+Conncects to the database specified in `mariadb_connection_config.yml` and exports data for every measurement specified in  `measurements_config.yml` into seperate CSV files inside the `./exported-data` directory.
 
-By default the script asks for the password to the mysql database and for a timestamp defining the earliest data to export.
+By default the script asks for a user and password that are expected to be authorized in the mysql database.
+
+### Get measurements since 1. Dec. 2020 4:15pm
+
+```shell
+python nymea_db_export.py --since 2020-12-01T16:15:00
+```
+
+### Get all measurements since the very first timestamp in the database
+
+```shell
+python nymea_db_export.py
+```
+
+Currently this earliest date is set in the code to `2020-09-01` (for historic reasons :P).
 
 ## Configuration
-
-### In `export.py`
-
-```python
-# ...
-
-# Filename of the configuration file for the database connection
-DB_CONNECTION_CONFIG_FILE = 'mariadb_connection_config.yml'
-# Filename of the configuration file for the metadata about the measurements
-DATABASE_METADATA_FILE = 'measurements_config.yml'
-# Directory name where the CSV files will be stored
-DATA_DIRECTORY = './data'
-
-# ...
-```
 
 ### Database connection
 
@@ -71,7 +72,9 @@ In `mariadb_connection_config.yml` the following top level keys are required:
 
 Optionally provide the password for `user`@`host` in the top level field `password`.
 
-### Measurements
+> Be careful to not commit sensitive data (like your password) in `mariadb_connection_config.yml` to Git! Otherwise you might accidentially publish your full database credentials and where to reach it...
+
+### Measurements metadata
 
 In `measurements_config.yml` the following structure is expected:
 

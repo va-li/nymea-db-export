@@ -69,25 +69,22 @@ def retrieve_measurements(device_id: str, measurement_id: str, from_timestamp: d
 
 	return measurements
 
-def process_measurements_for_readability(measurments: pd.DataFrame, measurement_header: str) -> pd.DataFrame:
-	# Do it like pandas' default and treat the original DataFrame as immutable
-	measurments = measurments.copy()
-
+def process_measurements_for_readability(measurements: pd.DataFrame, measurement_header: str) -> pd.DataFrame:
 	# Give the index and measurement column meaningful names
-	measurments.index.rename('UNIX-Zeitstempel', inplace=True)
-	measurments.rename(columns={'value': measurement_header}, inplace=True)
+	measurements.index.rename('UNIX-Zeitstempel', inplace=True)
+	measurements.rename(columns={'value': measurement_header}, inplace=True)
 	
 	# Convert the unreadable UNIX-Timestamp to human readable UTC and local timestamps.
 	# The `.dt.tz_localize(None)` removes the timezone info without changing the timestamp value,
 	# this way we get ISO timestamps when they are saved to a CSV file without the timezone string (e.g. '+00:00'),
 	# because many programs cannot interpret this and we leave it to the user to interpret the data using the
 	# CSV's column headers.
-	measurments['UTC-Zeitstempel'] = pd.to_datetime(data.index.to_series(), unit='ms').dt.tz_localize('UTC').dt.round('s')
-	measurments['Lokalzeit-Zeitstempel'] = data['UTC-Zeitstempel'].dt.tz_convert('Europe/Vienna').dt.tz_localize(None)
-	measurments['UTC-Zeitstempel'] = data['UTC-Zeitstempel'].dt.tz_localize(None)
+	measurements['UTC-Zeitstempel'] = pd.to_datetime(data.index.to_series(), unit='ms').dt.tz_localize('UTC').dt.round('s')
+	measurements['Lokalzeit-Zeitstempel'] = data['UTC-Zeitstempel'].dt.tz_convert('Europe/Vienna').dt.tz_localize(None)
+	measurements['UTC-Zeitstempel'] = data['UTC-Zeitstempel'].dt.tz_localize(None)
 
 	# Reorder the columns so when they are printed the timestamps are all left of the corresponding measurements
-	measurments = measurments[['UTC-Zeitstempel','Lokalzeit-Zeitstempel', measurement_header]]
+	measurements = measurements[['UTC-Zeitstempel','Lokalzeit-Zeitstempel', measurement_header]]
 	return measurements
 
 if __name__ == "__main__":
@@ -105,8 +102,8 @@ if __name__ == "__main__":
 		start_timestamp = parse_timestring(args.start)
 		end_timestamp = datetime.now()
 	elif args.between:
-		end_timestamp = parse_timestring(args.between[0])
-		start_timestamp = parse_timestring(args.between[1])
+		start_timestamp = parse_timestring(args.between[0])
+		end_timestamp = parse_timestring(args.between[1])
 	elif args.previous_full_hour:
 		start_previous_full_hour = (datetime.now() - timedelta(hours=1))\
 			.replace(minute=0, second=0, microsecond=0)
@@ -163,7 +160,7 @@ if __name__ == "__main__":
 
 					data = retrieve_measurements(device['thingId'], measurement_info['typeId'], start_timestamp, end_timestamp)
 
-					log.info('Retrieved ' + str(len(measurements)) + ' datapoints for ' + measurement_name + ' of ' + device_name + ' at ' + location_name)
+					log.info('Retrieved ' + str(len(data)) + ' datapoints for ' + measurement_name + ' of ' + device_name + ' at ' + location_name)
 					
 					data = process_measurements_for_readability(data, measurement_column_name)
 

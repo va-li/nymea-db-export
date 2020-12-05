@@ -1,6 +1,6 @@
 # Nymea database export
 
-Export nymea's collected measurements into human-readable formats.
+Export [nymea](https://github.com/nymea/nymea)'s collected measurements into human-readable formats.
 
 ## Requirements
 
